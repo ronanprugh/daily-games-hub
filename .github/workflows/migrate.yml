@@ -1,0 +1,74 @@
+name: Migrate
+
+# Applies db/schema.sql to the production database.
+#
+# Runs only when something under db/ actually changes, so an ordinary code
+# push does not touch the database at all. Also available manually from the
+# Actions tab.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "db/**"
+      - ".github/workflows/migrate.yml"
+  workflow_dispatch:
+    inputs:
+      allow_destructive:
+        description: "Allow DROP / TRUNCATE / DELETE / ALTER in schema.sql"
+        type: boolean
+        default: false
+
+concurrency:
+  # Never let two migrations run at once against the same database.
+  group: migrate-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require a database URL
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL secret is not set."
+            echo "Add it under Settings → Secrets and variables → Actions,"
+            echo "or in the 'production' environment if you want approvals."
+            exit 1
+          fi
+
+      # db/migrate.ts is a BOOTSTRAP, not a migration framework: no ordering,
+      # no versioning, no down-migrations. It is safe to run automatically
+      # only because every statement is additive and IF NOT EXISTS. The day
+      # that stops being true, this job must not quietly apply it.
+      - name: Refuse destructive SQL unless explicitly allowed
+        if: ${{ inputs.allow_destructive != true }}
+        run: |
+          if grep -inE '^\s*(DROP|TRUNCATE|DELETE|ALTER)\b' db/schema.sql; then
+            echo "::error::schema.sql contains destructive or altering SQL (see above)."
+            echo "db/migrate.ts has no ordering or rollback, so this is not safe to"
+            echo "apply automatically. Review it, apply it by hand, or re-run this"
+            echo "workflow manually with allow_destructive enabled."
+            exit 1
+          fi
+          echo "schema.sql is additive only."
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Apply schema
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: pnpm db:migrate

@@ -48,6 +48,15 @@ Games do not share a scale. A Wordle is 1-6 lower-is-better; Krillion is
 declares which, and `parseScore` / `lowerIsBetter` are the only places that
 interpret it. Never compare two games' raw numbers.
 
+## Migrations
+
+`db/migrate.ts` is a bootstrap: it replays `db/schema.sql`, which is additive
+and `IF NOT EXISTS` throughout. That is the only reason CI is allowed to run
+it unattended. **Keep `schema.sql` additive** — the Migrate workflow blocks
+`DROP`, `TRUNCATE`, `DELETE` and `ALTER` precisely because this migrator
+cannot undo them. Needing one of those means it is time for a real migration
+tool, not a manual override as a habit.
+
 ## Quality gates
 
 All must pass before any commit:
