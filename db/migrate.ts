@@ -21,12 +21,19 @@ if (!url) {
 const here = dirname(fileURLToPath(import.meta.url));
 const schema = readFileSync(join(here, "schema.sql"), "utf8");
 
-// Split on semicolons at end of line: the neon driver's tagged-template API
-// runs one statement at a time.
-const statements = schema
-  .split(/;\s*$/m)
+// Strip line comments BEFORE splitting. Filtering chunks that merely START
+// with a comment silently drops the statement attached to it — which is how
+// the first run lost CREATE TABLE users to this file's own header, and then
+// failed on sessions referencing a table that was never created.
+const withoutComments = schema
+  .split("\n")
+  .filter((line) => !/^\s*--/.test(line))
+  .join("\n");
+
+const statements = withoutComments
+  .split(";")
   .map((s) => s.trim())
-  .filter((s) => s !== "" && !s.startsWith("--"));
+  .filter((s) => s !== "");
 
 const sql = neon(url);
 for (const statement of statements) {
