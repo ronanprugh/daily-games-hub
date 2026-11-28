@@ -193,7 +193,7 @@ export const GAMES: Game[] = [
     verified: true,
     seenInChat: true,
     threadPosts: 4,
-    note: "Points out of 500, five rounds; each Miss scores ~0. Confirmed monotonic in misses across six shares.",
+    note: "Five rounds scored by answer rarity: Farflung 100, Elusive 85, Rare 70, Uncommon 55, Common 40, Miss 0. The km is flavour.",
   },
   {
     slug: "plain",

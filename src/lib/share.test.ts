@@ -262,3 +262,35 @@ describe("confirmed in the verification pass", () => {
     });
   });
 });
+
+describe("Farflung's rarity table", () => {
+  // From the game's own scoring screen. Each of five rounds scores by how rare
+  // the answer was; the headline is their sum, out of 500.
+  const TIER: Record<string, number> = {
+    Farflung: 100,
+    Elusive: 85,
+    Rare: 70,
+    Uncommon: 55,
+    Common: 40,
+    Miss: 0,
+  };
+  const SHARES = [
+    "Farflung #52 · 280/500 km\nRare · Miss · Rare · Rare · Rare",
+    "Farflung #52 · 140/500 km\nRare · Miss · Rare · Miss · Miss",
+    "Farflung #53 · 295/500 km\nMiss · Elusive · Elusive · Uncommon · Rare",
+    "Farflung #53 · 85/500 km\nMiss · Miss · Elusive · Miss · Miss",
+    "Farflung #54 · 180/500 km\nCommon · Rare · Miss · Rare · Miss",
+  ];
+
+  it("headline equals the sum of the tiers, for every known share", () => {
+    // If this ever fails, Farflung changed its scoring or its share format,
+    // and the parser's reading of the headline is no longer safe to trust.
+    for (const text of SHARES) {
+      const tiers = (text.split("\n")[1] ?? "").split(" · ");
+      const sum = tiers.reduce((n, t) => n + (TIER[t.trim()] ?? NaN), 0);
+      expect(parseEntry("farflung", text)).toEqual({
+        result: { score: sum, solved: true },
+      });
+    }
+  });
+});
