@@ -55,7 +55,7 @@ CREATE INDEX IF NOT EXISTS entries_user_game_idx ON entries(user_id, game_slug, 
 -- migrate workflow refuses DROP by design, so retiring it is a manual step).
 -- ---------------------------------------------------------------------------
 
--- One row per game. NOT hand-edited: db/migrate.ts upserts it from
+-- One row per game. NOT hand-edited: db/migrate.mts upserts it from
 -- src/data/games.ts on every run, so the catalogue stays reviewed code while
 -- the database can still join on it and enforce game_id.
 CREATE TABLE IF NOT EXISTS games (

@@ -43,7 +43,7 @@ public URL, so without it anyone who finds the page can sign up.
 
 ## Migrations
 
-`db/schema.sql` is applied by `db/migrate.ts`. Every statement is
+`db/schema.sql` is applied by `db/migrate.mts`. Every statement is
 `IF NOT EXISTS`, so it is a **bootstrap, not a migration framework** — no
 ordering, no versioning, no rollback.
 

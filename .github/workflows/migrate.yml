@@ -41,7 +41,7 @@ jobs:
             exit 1
           fi
 
-      # db/migrate.ts is a BOOTSTRAP, not a migration framework: no ordering,
+      # db/migrate.mts is a BOOTSTRAP, not a migration framework: no ordering,
       # no versioning, no down-migrations. It is safe to run automatically
       # only because every statement is additive and IF NOT EXISTS. The day
       # that stops being true, this job must not quietly apply it.
@@ -50,7 +50,7 @@ jobs:
         run: |
           if grep -inE '^\s*(DROP|TRUNCATE|DELETE|ALTER)\b' db/schema.sql; then
             echo "::error::schema.sql contains destructive or altering SQL (see above)."
-            echo "db/migrate.ts has no ordering or rollback, so this is not safe to"
+            echo "db/migrate.mts has no ordering or rollback, so this is not safe to"
             echo "apply automatically. Review it, apply it by hand, or re-run this"
             echo "workflow manually with allow_destructive enabled."
             exit 1

@@ -39,7 +39,7 @@ docs/specs/     # SDD specs, tasks, audits, proofs
 4. **`src/lib/stats.ts` and `src/lib/password.ts` stay pure.** No database, no
    `next/*` imports. That is what makes them testable without either.
 5. **The game catalogue is code; the `games` table is its mirror.**
-   `src/data/games.ts` is the source of truth, and `db/migrate.ts` upserts it
+   `src/data/games.ts` is the source of truth, and `db/migrate.mts` upserts it
    into `games` on every run. Never hand-edit `games` rows — the next migrate
    overwrites them. Changing a game's direction in code re-ranks every stored
    score, because `scores.points` is stored raw.
@@ -56,7 +56,7 @@ interpret it. Never compare two games' raw numbers.
 
 ## Migrations
 
-`db/migrate.ts` is a bootstrap: it replays `db/schema.sql`, which is additive
+`db/migrate.mts` is a bootstrap: it replays `db/schema.sql`, which is additive
 and `IF NOT EXISTS` throughout. That is the only reason CI is allowed to run
 it unattended. **Keep `schema.sql` additive** — the Migrate workflow blocks
 `DROP`, `TRUNCATE`, `DELETE` and `ALTER` precisely because this migrator
