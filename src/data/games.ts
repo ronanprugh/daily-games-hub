@@ -190,9 +190,10 @@ export const GAMES: Game[] = [
     category: "geo",
     scoring: { kind: "points", max: 500, unit: "km" },
     bestPoints: 500,
-    verified: false,
+    verified: true,
     seenInChat: true,
     threadPosts: 4,
+    note: "Points out of 500, five rounds; each Miss scores ~0. Confirmed monotonic in misses across six shares.",
   },
   {
     slug: "plain",

@@ -10,6 +10,9 @@ on:
     branches: [main]
     paths:
       - "db/**"
+      # The games table mirrors the catalogue, so a catalogue edit must sync
+      # too — otherwise games.verified / lower_is_better go stale silently.
+      - "src/data/games.ts"
       - ".github/workflows/migrate.yml"
   workflow_dispatch:
     inputs:

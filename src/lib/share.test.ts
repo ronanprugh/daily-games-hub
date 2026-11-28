@@ -250,3 +250,15 @@ describe("extractBoard", () => {
     expect(extractBoard(SAMPLES["nyt-mini"]!.text)).toBeNull();
   });
 });
+
+describe("confirmed in the verification pass", () => {
+  it("Farflung: points fall as misses rise, with a link line attached", () => {
+    // Confirmed 2026-11-28: across six shares, 1 miss -> 280-295, 2 -> 180,
+    // 3 -> 140, 4 -> 85. Points out of 500, higher is better.
+    const text =
+      "Farflung #54 · 180/500 km\nCommon · Rare · Miss · Rare · Miss\nhttps://farflung.game/s/abc123?e=54";
+    expect(parseEntry("farflung", text)).toEqual({
+      result: { score: 180, solved: true },
+    });
+  });
+});
