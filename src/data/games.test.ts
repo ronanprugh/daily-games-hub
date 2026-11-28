@@ -75,8 +75,11 @@ describe("the catalogue is internally consistent", () => {
     expect(new Set(GAMES.map((g) => g.slug)).size).toBe(GAMES.length);
   });
 
-  it("flags the games whose meaning is still unconfirmed", () => {
+  it("has every game verified", () => {
+    // All 22 were confirmed against real shares or the game's own rules on
+    // 2026-11-28. A new game lands unverified until one is seen; this test is
+    // the prompt to go and look, not a list to edit away.
     const unverified = GAMES.filter((g) => !g.verified).map((g) => g.slug);
-    expect(unverified.sort()).toEqual(["tightrope"].sort());
+    expect(unverified).toEqual([]);
   });
 });

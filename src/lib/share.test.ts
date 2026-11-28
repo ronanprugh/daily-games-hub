@@ -115,6 +115,11 @@ const SAMPLES: Record<string, { text: string; score: number | null; solved: bool
     score: 130,
     solved: true,
   },
+  tightrope: {
+    text: "Tightrope, a daily trivia game | Britannica\n\nNov. 28, 2026 \n\n T   I   G   H   T   R   O   P   E \n✅ ✅ 💔 ✅ ✅ ✅ ✅ ✅ ✅ 🎉\n\nMy Score: 1820",
+    score: 1820,
+    solved: true,
+  },
   krillion: {
     text: "Krillion #121 🦐\n360\n\n🐟🦑🦑🐟🦑🦑🦑",
     score: 360,
@@ -398,5 +403,20 @@ describe("Contexto", () => {
     expect(parseEntry("contexto", text)).toEqual({
       result: { score: sum, solved: true },
     });
+  });
+});
+
+describe("Tightrope", () => {
+  it("keeps only the answer row as board", () => {
+    // Not the title, the date, the spaced-out letters, or the score line.
+    expect(extractBoard(SAMPLES["tightrope"]!.text)).toBe(
+      "✅ ✅ 💔 ✅ ✅ ✅ ✅ ✅ ✅ 🎉",
+    );
+  });
+
+  it("has one answer per letter, plus the finish", () => {
+    const row = extractBoard(SAMPLES["tightrope"]!.text)!.split(/\s+/);
+    expect(row.filter((c) => c === "✅" || c === "💔")).toHaveLength("TIGHTROPE".length);
+    expect(row.at(-1)).toBe("🎉");
   });
 });

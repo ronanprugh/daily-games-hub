@@ -167,6 +167,14 @@ export const SHARE_PARSERS: Record<string, ShareParser> = {
     return m?.[1] ? { score: Number(m[1]), solved: true } : null;
   },
 
+  tightrope: (t) => {
+    // Britannica's share: a title line, the date, the T-I-G-H-T-R-O-P-E
+    // letters over one ✅/💔 per question, and "My Score: 1820". A fall is
+    // unseen, so a parsed share is a solve until one turns up.
+    const m = /Tightrope[\s\S]*?My Score:\s*([\d,]+)/i.exec(t);
+    return m?.[1] ? { score: num(m[1]), solved: true } : null;
+  },
+
   krillion: (t) => {
     const head = /Krillion\s+(?:∞\s*)?#\d+/i.exec(t);
     if (!head) return null;
@@ -181,7 +189,7 @@ export const SHARE_PARSERS: Record<string, ShareParser> = {
  * Listed explicitly so a new game cannot silently ship without a parser —
  * share.test.ts checks every catalogue slug is in exactly one of the two.
  */
-export const NO_SHARE_FORMAT = new Set(["tightrope"]);
+export const NO_SHARE_FORMAT = new Set<string>();
 
 /** Which game a pasted share belongs to, if any parser recognises it. */
 export function detectGame(text: string): string | null {

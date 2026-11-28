@@ -308,10 +308,10 @@ export const GAMES: Game[] = [
     category: "trivia",
     scoring: { kind: "points" },
     bestPoints: null,
-    verified: false,
+    verified: true,
     seenInChat: true,
     threadPosts: 0,
-    note: "Linked in the thread but never scored there.",
+    note: "Nine questions (T-I-G-H-T-R-O-P-E), ✅ right / 💔 wrong, 🎉 for making it across; shares 'My Score: 1820', higher is better. The maximum, and what a fall looks like, are unknown.",
   },
 ];
 
