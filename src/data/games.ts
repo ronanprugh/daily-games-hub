@@ -120,10 +120,10 @@ export const GAMES: Game[] = [
     category: "word",
     scoring: { kind: "guesses", max: 999 },
     bestPoints: 1,
-    verified: false,
+    verified: true,
     seenInChat: true,
     threadPosts: 0,
-    note: "Linked in the thread but never scored there.",
+    note: "Shares 'I played contexto.me 11/28/2026 and got it in 78 guesses.' — a date, not a puzzle number. The board buckets guesses by closeness (🟩/🟨/🟥 with counts) and sums to the total. Give-up format unknown.",
   },
 
   // ---- geo --------------------------------------------------------------

@@ -41,8 +41,8 @@ const SAMPLES: Record<string, { text: string; score: number | null; solved: bool
     solved: true,
   },
   contexto: {
-    text: "I played contexto.me #812 and got it in 37 guesses.\n\n🟩 3\n🟨 12\n🟥 22",
-    score: 37,
+    text: "I played contexto.me 11/28/2026 and got it in 78 guesses.\n\n🟩🟩 17\n🟨🟨🟨 22\n🟥🟥🟥🟥🟥 39",
+    score: 78,
     solved: true,
   },
   globle: {
@@ -384,5 +384,19 @@ describe("Travle", () => {
   ])("%s", (text, score, solved) => {
     // '+0' arrives both with and without '(Perfect)' — confirmed 2026-11-28.
     expect(parseEntry("travle", text)).toEqual({ result: { score, solved } });
+  });
+});
+
+describe("Contexto", () => {
+  it("bucket counts on the board sum to the guess total", () => {
+    // Confirmed 2026-11-28 from a real share. The format carries a date, not
+    // the '#812' this parser was first written from memory to expect.
+    const text = SAMPLES["contexto"]!.text;
+    const sum = (extractBoard(text) ?? "")
+      .split("\n")
+      .reduce((n, line) => n + Number(/(\d+)\s*$/.exec(line)?.[1] ?? 0), 0);
+    expect(parseEntry("contexto", text)).toEqual({
+      result: { score: sum, solved: true },
+    });
   });
 });
