@@ -49,3 +49,61 @@ CREATE TABLE IF NOT EXISTS entries (
 );
 CREATE INDEX IF NOT EXISTS entries_user_date_idx ON entries(user_id, played_on DESC);
 CREATE INDEX IF NOT EXISTS entries_user_game_idx ON entries(user_id, game_slug, played_on DESC);
+
+-- ---------------------------------------------------------------------------
+-- games + scores (replaces `entries`, which is left in place and unused: the
+-- migrate workflow refuses DROP by design, so retiring it is a manual step).
+-- ---------------------------------------------------------------------------
+
+-- One row per game. NOT hand-edited: db/migrate.ts upserts it from
+-- src/data/games.ts on every run, so the catalogue stays reviewed code while
+-- the database can still join on it and enforce game_id.
+CREATE TABLE IF NOT EXISTS games (
+  id               TEXT PRIMARY KEY,          -- the slug, e.g. 'wordle'
+  name             TEXT NOT NULL,
+  url              TEXT NOT NULL,
+  category         TEXT NOT NULL,
+  -- What `scores.points` counts: guesses | points | seconds | mistakes |
+  -- strokes (over par) | done.
+  scoring_unit     TEXT NOT NULL,
+  lower_is_better  BOOLEAN NOT NULL,
+  -- Best result anyone could post. NULL when unbounded (a crossword time).
+  best_points      NUMERIC,
+  -- The cap at the other end: 6 for Wordle, 0 for Krillion. NULL if none.
+  worst_points     NUMERIC,
+  -- Whether a play can end unsolved (Wordle X/6). Drives the "solved" stat.
+  can_fail         BOOLEAN NOT NULL,
+  -- Suffix the UI shows after the number: 'm', 'km'. NULL for none.
+  display_unit     TEXT,
+  -- True when pasting the game's share text works, not only a typed score.
+  has_share_parser BOOLEAN NOT NULL,
+  -- True when the share format AND what its number means are confirmed.
+  verified         BOOLEAN NOT NULL,
+  sort_order       INTEGER NOT NULL,
+  active           BOOLEAN NOT NULL DEFAULT TRUE,
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS scores (
+  id           BIGSERIAL PRIMARY KEY,
+  player_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  game_id      TEXT NOT NULL REFERENCES games(id),
+  date_played  DATE NOT NULL,
+  -- In the game's own scoring_unit. NULL for an unsolved play with no number.
+  points       NUMERIC,
+  -- A failed Wordle is played-but-not-solved: it keeps a streak alive, but
+  -- must not count toward "best" or "average".
+  solved       BOOLEAN NOT NULL DEFAULT TRUE,
+  -- The emoji grid as shared. UTF-8 TEXT stores emoji, keycaps and ZWJ
+  -- sequences byte-for-byte.
+  board        TEXT,
+  -- The whole paste. If a parser turns out to have misread a game, points
+  -- can be re-derived from this instead of being lost.
+  raw          TEXT,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (player_id, game_id, date_played)
+);
+CREATE INDEX IF NOT EXISTS scores_player_date_idx ON scores(player_id, date_played DESC);
+CREATE INDEX IF NOT EXISTS scores_player_game_idx ON scores(player_id, game_id, date_played DESC);
+CREATE INDEX IF NOT EXISTS scores_game_date_idx ON scores(game_id, date_played DESC);

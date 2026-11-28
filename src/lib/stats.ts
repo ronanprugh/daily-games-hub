@@ -171,8 +171,7 @@ export function parseScore(
       const m = /^(\d+)\s*(?:\/\s*\d+)?$/.exec(text);
       return m ? { score: Number(m[1]), solved: true } : null;
     }
-    case "points":
-    case "distance": {
+    case "points": {
       const m = /^([\d,]+(?:\.\d+)?)/.exec(text);
       if (!m) return null;
       const n = Number((m[1] as string).replace(/,/g, ""));

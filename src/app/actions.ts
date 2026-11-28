@@ -6,7 +6,7 @@ import { sql } from "../lib/db";
 import { createSession, currentUser, destroySession } from "../lib/auth";
 import { hashPassword, validateCredentials, verifyPassword } from "../lib/password";
 import { GAMES_BY_SLUG } from "../data/games";
-import { parseScore } from "../lib/stats";
+import { extractBoard, parseEntry } from "../lib/share";
 
 export interface ActionResult {
   error?: string;
@@ -97,15 +97,18 @@ export async function saveEntry(
   if (!game) return { error: "Unknown game." };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { error: "Bad date." };
 
-  const parsed = parseScore(game.scoring, raw);
-  if (!parsed) return { error: `Could not read "${raw}" as a score for ${game.name}.` };
+  const outcome = parseEntry(slug, raw);
+  if ("error" in outcome) return { error: outcome.error };
+  const parsed = outcome.result;
 
   await sql()`
-    INSERT INTO entries (user_id, game_slug, played_on, solved, score, raw)
-    VALUES (${user.id}, ${slug}, ${day}, ${parsed.solved}, ${parsed.score}, ${raw})
-    ON CONFLICT (user_id, game_slug, played_on) DO UPDATE
-       SET solved = EXCLUDED.solved,
-           score = EXCLUDED.score,
+    INSERT INTO scores (player_id, game_id, date_played, points, solved, board, raw)
+    VALUES (${user.id}, ${slug}, ${day}, ${parsed.score}, ${parsed.solved},
+            ${extractBoard(raw)}, ${raw})
+    ON CONFLICT (player_id, game_id, date_played) DO UPDATE
+       SET points = EXCLUDED.points,
+           solved = EXCLUDED.solved,
+           board = EXCLUDED.board,
            raw = EXCLUDED.raw,
            updated_at = now()
   `;
@@ -122,8 +125,8 @@ export async function clearEntry(
   const slug = String(form.get("slug") ?? "");
   const day = String(form.get("day") ?? "");
   await sql()`
-    DELETE FROM entries
-     WHERE user_id = ${user.id} AND game_slug = ${slug} AND played_on = ${day}
+    DELETE FROM scores
+     WHERE player_id = ${user.id} AND game_id = ${slug} AND date_played = ${day}
   `;
   revalidatePath("/");
   return {};

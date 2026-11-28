@@ -99,10 +99,9 @@ describe("parseScore", () => {
   });
 
   it("treats an empty value as done for a done-only game", () => {
-    expect(parseScore(scoringFor("planetle-geozip"), "")).toEqual({
-      score: null,
-      solved: true,
-    });
+    // No catalogue game is done-only any more (GeoZip turned out to share a
+    // clock), so this exercises the scoring kind directly.
+    expect(parseScore({ kind: "done" }, "")).toEqual({ score: null, solved: true });
   });
 
   it("rejects an empty value for a game that needs a number", () => {

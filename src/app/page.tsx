@@ -21,12 +21,15 @@ export default async function Hub() {
   if (!user) redirect("/login");
 
   const rows = (await sql()`
-    SELECT game_slug, to_char(played_on, 'YYYY-MM-DD') AS played_on, solved,
-           score::float8 AS score
-      FROM entries
-     WHERE user_id = ${user.id}
-     ORDER BY played_on DESC
-  `) as EntryRow[];
+    SELECT game_id AS game_slug,
+           to_char(date_played, 'YYYY-MM-DD') AS played_on,
+           solved,
+           points::float8 AS score,
+           board
+      FROM scores
+     WHERE player_id = ${user.id}
+     ORDER BY date_played DESC
+  `) as (EntryRow & { board: string | null })[];
 
   const today = isoDay(new Date());
   const todayByGame = new Map(
@@ -86,7 +89,11 @@ export default async function Hub() {
                     key={game.slug}
                     game={game}
                     day={today}
-                    today={entry ? { score: entry.score, solved: entry.solved } : null}
+                    today={
+                      entry
+                        ? { score: entry.score, solved: entry.solved, board: entry.board }
+                        : null
+                    }
                     stats={statsForGame(game.slug, rows, today)}
                   />
                 );

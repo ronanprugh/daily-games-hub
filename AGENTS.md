@@ -38,8 +38,14 @@ docs/specs/     # SDD specs, tasks, audits, proofs
    the same work done, either way.
 4. **`src/lib/stats.ts` and `src/lib/password.ts` stay pure.** No database, no
    `next/*` imports. That is what makes them testable without either.
-5. **The game catalogue is code, not data rows.** Adding a game is a reviewed
-   PR, so a bad link or a wrong scoring kind gets seen.
+5. **The game catalogue is code; the `games` table is its mirror.**
+   `src/data/games.ts` is the source of truth, and `db/migrate.ts` upserts it
+   into `games` on every run. Never hand-edit `games` rows — the next migrate
+   overwrites them. Changing a game's direction in code re-ranks every stored
+   score, because `scores.points` is stored raw.
+6. **`scores.raw` is kept on purpose.** Several games' meanings were inferred
+   rather than documented (see `verified` in the catalogue). If a parser turns
+   out wrong, points are re-derived from `raw` instead of being lost.
 
 ## Scoring
 
