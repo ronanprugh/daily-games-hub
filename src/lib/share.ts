@@ -72,7 +72,12 @@ function connections(text: string): ParsedResult | null {
 export const SHARE_PARSERS: Record<string, ShareParser> = {
   wordle: (t) => fraction(/\bWordle\s+[\d,]+\s+([1-6X])\/6\*?/i.exec(t)),
 
-  poople: (t) => fraction(/\bPoople\s+#\d+\s+(\d+|X)\/\d+/i.exec(t)),
+  poople: (t) => {
+    // "moves/par". Par is the puzzle's minimum and varies by day, so the raw
+    // move count is not comparable across days; moves over par is.
+    const m = /\bPoople\s+#\d+\s+(\d+)\/(\d+)/i.exec(t);
+    return m ? { score: Number(m[1]) - Number(m[2]), solved: true } : null;
+  },
 
   word500: (t) => {
     // A win is "score = 7/8"; a loss is "score = LOSS" (confirmed 2026-11-28 —

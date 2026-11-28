@@ -83,12 +83,12 @@ export const GAMES: Game[] = [
     name: "Poople",
     url: "https://poople.io",
     category: "word",
-    scoring: { kind: "guesses", max: 6 },
-    bestPoints: 1,
-    verified: false,
+    scoring: { kind: "par" },
+    bestPoints: 0,
+    verified: true,
     seenInChat: true,
     threadPosts: 31,
-    note: "Golf-like: '8/6' is 8 guesses against a par of 6, and still a solve.",
+    note: "Shares 'moves/par'; par (minimum moves) varies by puzzle and the move count is never below it. Stored as moves over par so days compare: 5/5 is 0, 8/6 is +2.",
   },
   {
     slug: "sedecordle",
@@ -322,9 +322,6 @@ export function lowerIsBetter(scoring: Scoring): boolean {
   return scoring.kind !== "points" && scoring.kind !== "done";
 }
 
-/** Games whose guess count can run past the nominal max (Poople's 8/6). */
-const UNCAPPED = new Set(["poople"]);
-
 /** The `games` table row for a catalogue entry, minus `has_share_parser`. */
 export interface GameRow {
   id: string;
@@ -359,7 +356,6 @@ export function gameRow(game: Game, sortOrder: number): GameRow {
   let worst: number | null = null;
   if ((s.kind === "guesses" || s.kind === "mistakes") && s.max < 999) worst = s.max;
   if (s.kind === "points") worst = 0;
-  if (UNCAPPED.has(game.slug)) worst = null;
 
   return {
     id: game.slug,

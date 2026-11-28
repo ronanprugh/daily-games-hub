@@ -21,8 +21,8 @@ const SAMPLES: Record<string, { text: string; score: number | null; solved: bool
     solved: true,
   },
   poople: {
-    text: "Poople #456 8/6\n⬜⬜⬜⬜\n⬜🟫⬜⬜\n⬜🟫🟫⬜\n🟫🟫🟫🟫",
-    score: 8,
+    text: "Poople #456 8/6\n⬜⬜⬜⬜\n⬜⬜⬜⬜\n⬜⬜⬜⬜\n⬜⬜⬜⬜\n⬜⬜⬜⬜\n⬜🟫⬜⬜\n⬜🟫🟫⬜\n⬜🟫🟫🟫\n🟫🟫🟫🟫",
+    score: 2,
     solved: true,
   },
   word500: {
@@ -343,5 +343,34 @@ describe("Word500", () => {
     // A loss uses all 8 guesses and never reaches 5-0-0.
     expect(rows(LOSS)).toHaveLength(8);
     expect(rows(LOSS).some((r) => r.trim() === "5️⃣0️⃣0️⃣")).toBe(false);
+  });
+});
+
+describe("Poople", () => {
+  const PERFECT =
+    "Poople #470 5/5\n⬜⬜⬜⬜\n⬜⬜⬜🟫\n⬜⬜⬜🟫\n⬜⬜🟫🟫\n🟫⬜🟫🟫\n🟫🟫🟫🟫\n\nhttps://poople.io/";
+
+  it("stores moves over par, so a perfect day is 0", () => {
+    expect(parseEntry("poople", PERFECT)).toEqual({ result: { score: 0, solved: true } });
+  });
+
+  it("every board is a blank row, then one row per move, ending full", () => {
+    // The shape that supports reading "8/6" as moves/par: rows = moves + 1,
+    // and moves are never below par. Enforced on every Poople fixture.
+    for (const text of [PERFECT, SAMPLES["poople"]!.text]) {
+      const m = /(\d+)\/(\d+)/.exec(text)!;
+      const moves = Number(m[1]);
+      const par = Number(m[2]);
+      const rows = text.split("\n").filter((l) => /^[⬜🟫]+$/u.test(l));
+      expect(rows).toHaveLength(moves + 1);
+      expect(rows[0]).toBe("⬜⬜⬜⬜");
+      expect(rows.at(-1)).toBe("🟫🟫🟫🟫");
+      expect(moves).toBeGreaterThanOrEqual(par);
+    }
+  });
+
+  it("refuses a typed '8/6' rather than storing it as 8 over par", () => {
+    expect("error" in parseEntry("poople", "8/6")).toBe(true);
+    expect(parseEntry("poople", "+2")).toEqual({ result: { score: 2, solved: true } });
   });
 });

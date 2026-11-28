@@ -163,7 +163,8 @@ export function parseScore(
       return Number.isFinite(secs) ? { score: secs, solved: true } : null;
     }
     case "par": {
-      const m = /^\+?(-?\d+)/.exec(text);
+      // Whole string only: "8/6" must not be read as 8 over par.
+      const m = /^\+?(-?\d+)$/.exec(text);
       return m ? { score: Number(m[1]), solved: true } : null;
     }
     case "guesses":

@@ -42,8 +42,13 @@ describe("gameRow", () => {
     });
   });
 
-  it("gives Poople no worst, because 8/6 happens", () => {
-    expect(row("poople").worst_points).toBeNull();
+  it("scores Poople as strokes over par, best 0, no cap", () => {
+    expect(row("poople")).toMatchObject({
+      scoring_unit: "strokes",
+      lower_is_better: true,
+      best_points: 0,
+      worst_points: null,
+    });
   });
 
   it("calls travle strokes over par, best 0", () => {
@@ -72,8 +77,6 @@ describe("the catalogue is internally consistent", () => {
 
   it("flags the games whose meaning is still unconfirmed", () => {
     const unverified = GAMES.filter((g) => !g.verified).map((g) => g.slug);
-    expect(unverified.sort()).toEqual(
-      ["contexto", "poople", "tightrope", "travle"].sort(),
-    );
+    expect(unverified.sort()).toEqual(["contexto", "tightrope", "travle"].sort());
   });
 });
