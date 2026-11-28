@@ -74,7 +74,14 @@ export const SHARE_PARSERS: Record<string, ShareParser> = {
 
   poople: (t) => fraction(/\bPoople\s+#\d+\s+(\d+|X)\/\d+/i.exec(t)),
 
-  word500: (t) => fraction(/\bWord500\b[\s\S]*?score\s*=\s*(\d+|X)\s*\/\s*8/i.exec(t)),
+  word500: (t) => {
+    // A win is "score = 7/8"; a loss is "score = LOSS" (confirmed 2026-11-28 —
+    // the X/8 this first assumed does not exist).
+    const m = /\bWord500\b[\s\S]*?score\s*=\s*(?:(\d+)\s*\/\s*8|(LOSS))/i.exec(t);
+    if (!m) return null;
+    if (m[2]) return { score: null, solved: false };
+    return { score: Number(m[1]), solved: true };
+  },
 
   sedecordle: (t) => fraction(/\bSedecordle\b[^\n]*?#\d+\s+(\d+|X)\/21/i.exec(t)),
 

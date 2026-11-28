@@ -73,10 +73,10 @@ export const GAMES: Game[] = [
     category: "word",
     scoring: { kind: "guesses", max: 8 },
     bestPoints: 1,
-    verified: false,
+    verified: true,
     seenInChat: true,
     threadPosts: 22,
-    note: "'score = 7/8' arrives with 7 grid rows: it is guesses used, not points.",
+    note: "Each row is three counts summing to 5: right spot, wrong spot, absent. A win ends on 5-0-0 and scores its row count out of 8; a loss reads 'score = LOSS'.",
   },
   {
     slug: "poople",

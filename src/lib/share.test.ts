@@ -26,7 +26,7 @@ const SAMPLES: Record<string, { text: string; score: number | null; solved: bool
     solved: true,
   },
   word500: {
-    text: "Word500, Standard, 13-NOV-2026\nNo hints used, score = 7/8\n0️⃣1️⃣4️⃣ \n5️⃣0️⃣0️⃣ \n\nhttps://www.word500.com",
+    text: "Word500, Standard, 13-NOV-2026\nNo hints used, score = 7/8\n0️⃣1️⃣4️⃣ \n1️⃣1️⃣3️⃣ \n2️⃣0️⃣3️⃣ \n1️⃣2️⃣2️⃣ \n3️⃣1️⃣1️⃣ \n4️⃣0️⃣1️⃣ \n5️⃣0️⃣0️⃣ \n\nhttps://www.word500.com",
     score: 7,
     solved: true,
   },
@@ -317,5 +317,31 @@ describe("extractBoard keeps real boards with words in them", () => {
     const text =
       "Plain #38 ✈️ 4,181 m\n🟨🟥🟥🟥🟩🟥🎯\n🔥 2-day streak\nCan you beat me? 👇";
     expect(extractBoard(text)).toBe("🟨🟥🟥🟥🟩🟥🎯");
+  });
+});
+
+describe("Word500", () => {
+  const LOSS =
+    "Word500, Standard, 28-NOV-2026\nNo hints used, score = LOSS\n1️⃣1️⃣3️⃣ \n0️⃣1️⃣4️⃣ \n1️⃣1️⃣3️⃣ \n0️⃣1️⃣4️⃣ \n0️⃣1️⃣4️⃣ \n0️⃣1️⃣4️⃣ \n0️⃣1️⃣4️⃣ \n0️⃣1️⃣4️⃣ \n\nhttps://www.word500.com\n#word500";
+
+  it("reads 'score = LOSS' as played-but-not-solved", () => {
+    expect(parseEntry("word500", LOSS)).toEqual({
+      result: { score: null, solved: false },
+    });
+  });
+
+  it("a win's score is its row count, and its last row is 5-0-0", () => {
+    // The mechanic that confirms 'guesses used': each row is a guess, scored
+    // as (right spot, wrong spot, absent) counts summing to 5.
+    const rows = (text: string) => text.split("\n").filter((l) => /^\d️?⃣/u.test(l));
+    const win = SAMPLES["word500"]!.text;
+    const winRows = rows(win);
+    expect(parseEntry("word500", win)).toEqual({
+      result: { score: winRows.length, solved: true },
+    });
+    expect(winRows.at(-1)?.trim()).toBe("5️⃣0️⃣0️⃣");
+    // A loss uses all 8 guesses and never reaches 5-0-0.
+    expect(rows(LOSS)).toHaveLength(8);
+    expect(rows(LOSS).some((r) => r.trim() === "5️⃣0️⃣0️⃣")).toBe(false);
   });
 });

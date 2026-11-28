@@ -73,7 +73,7 @@ describe("the catalogue is internally consistent", () => {
   it("flags the games whose meaning is still unconfirmed", () => {
     const unverified = GAMES.filter((g) => !g.verified).map((g) => g.slug);
     expect(unverified.sort()).toEqual(
-      ["contexto", "poople", "tightrope", "travle", "word500"].sort(),
+      ["contexto", "poople", "tightrope", "travle"].sort(),
     );
   });
 });
