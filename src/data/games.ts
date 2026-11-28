@@ -156,10 +156,10 @@ export const GAMES: Game[] = [
     category: "geo",
     scoring: { kind: "par" },
     bestPoints: 0,
-    verified: false,
+    verified: true,
     seenInChat: true,
     threadPosts: 21,
-    note: "Posts as +N over par; +0 is 'Perfect'.",
+    note: "One tile per guess. '+N' is N guesses over the optimal route; a perfect day prints '+0' with or without '(Perfect)'. '(N away)' is read as a failure from its wording. A '(2 hints)' suffix is stored as printed: whether hints already add to +N is unknown.",
   },
   {
     slug: "worldle",

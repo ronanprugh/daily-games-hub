@@ -374,3 +374,15 @@ describe("Poople", () => {
     expect(parseEntry("poople", "+2")).toEqual({ result: { score: 2, solved: true } });
   });
 });
+
+describe("Travle", () => {
+  it.each([
+    ["#travle #1445 +0\n🟩🟩✅\nhttps://travle.earth", 0, true],
+    ["#travle #1438 +0 (Perfect)\n✅✅✅", 0, true],
+    ["#travle #1440 +4 (2 hints)\n✅🟧✅🟧", 4, true],
+    ["#travle #1436 (1 away)\n🟧🟧✅✅", null, false],
+  ])("%s", (text, score, solved) => {
+    // '+0' arrives both with and without '(Perfect)' — confirmed 2026-11-28.
+    expect(parseEntry("travle", text)).toEqual({ result: { score, solved } });
+  });
+});
