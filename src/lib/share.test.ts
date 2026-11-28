@@ -294,3 +294,28 @@ describe("Farflung's rarity table", () => {
     }
   });
 });
+
+describe("Plain", () => {
+  it("parses a share with a rank, a streak-free footer and a link", () => {
+    const text =
+      "Plain #42 ✈️ 4,159 m\n🎯🟩🟧🟥🟨🟨🟥\nTop 13% today\nCan you beat me? 👇\nhttps://playplain.app/c/ABC123";
+    expect(parseEntry("plain", text)).toEqual({ result: { score: 4159, solved: true } });
+    // Only the tile row is board — not the rank, the call to action, or the
+    // link. (The first version of this test asserted the caption WAS board,
+    // matching buggy output instead of the right answer.)
+    expect(extractBoard(text)).toBe("🎯🟩🟧🟥🟨🟨🟥");
+  });
+});
+
+describe("extractBoard keeps real boards with words in them", () => {
+  it("keeps TimeGuessr's numbered round rows", () => {
+    const board = extractBoard(SAMPLES["timeguessr"]!.text);
+    expect(board).toBe("1️⃣ 🏆6,779 · 📅 1y · 🌍 1203.3mi");
+  });
+
+  it("drops a streak caption", () => {
+    const text =
+      "Plain #38 ✈️ 4,181 m\n🟨🟥🟥🟥🟩🟥🎯\n🔥 2-day streak\nCan you beat me? 👇";
+    expect(extractBoard(text)).toBe("🟨🟥🟥🟥🟩🟥🎯");
+  });
+});

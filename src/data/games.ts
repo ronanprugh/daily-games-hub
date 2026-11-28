@@ -202,9 +202,10 @@ export const GAMES: Game[] = [
     category: "geo",
     scoring: { kind: "points", unit: "m" },
     bestPoints: null,
-    verified: false,
+    verified: true,
     seenInChat: true,
     threadPosts: 13,
+    note: "Higher is better: the score tracks the count of 🎯 tiles across nine shares. Tiles bucket a continuous score (identical boards scored 5,105 and 4,159), so points cannot be rebuilt from the board. What the metres measure, and any maximum, are unknown.",
   },
   {
     slug: "planetle-geogrid",

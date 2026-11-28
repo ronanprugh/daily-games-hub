@@ -229,6 +229,10 @@ export function extractBoard(text: string): string | null {
   const lines = text.replace(/\r\n?/g, "\n").split("\n").slice(1);
   const kept = lines
     .filter((line) => EMOJI.test(line) && !/https?:\/\//i.test(line))
+    // A line with words in it is a caption ("Can you beat me? 👇",
+    // "🔥 2-day streak"), not board — unless it is a numbered round row,
+    // which is how TimeGuessr lays out its board ("1️⃣ 🏆6,779 · 📅 1y").
+    .filter((line) => !/[A-Za-z]{2,}/.test(line) || /^\s*\d\uFE0F?\u20E3/u.test(line))
     .map((line) => line.trimEnd());
   return kept.length > 0 ? kept.join("\n") : null;
 }
